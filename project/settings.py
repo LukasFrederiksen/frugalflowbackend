@@ -18,8 +18,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fuigm@3w31kd$)
 DEBUG = os.environ.get('DEBUG', True)
 
 # ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-ALLOWED_HOSTS = ['localhost']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.86.34']
 
 # cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', '')
 cors_origins = ['http://localhost:3000']
@@ -48,6 +47,7 @@ INSTALLED_APPS = [
     "project.apps.vessel",
     "project.apps.manufacture",
     "project.apps.product",
+    "project.apps.unique_product",
     "project.apps.users",
     "project.apps.kafka",
 ]
@@ -101,7 +101,7 @@ DATABASES = {
         'USER': "root",
         'PASSWORD': "password",
         # 'HOST': os.getenv('DB_HOST'),
-        'HOST': "192.168.56.1",
+        'HOST': "localhost",
         'PORT': "3306",
     }
 }
@@ -140,11 +140,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
