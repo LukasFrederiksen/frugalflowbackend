@@ -97,7 +97,7 @@ WSGI_APPLICATION = "project.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "frugal_development",
+        "NAME": "testdb",
         'USER': "root",
         'PASSWORD': "password",
         # 'HOST': os.getenv('DB_HOST'),
