@@ -3,7 +3,7 @@ from project.apps.manufacture.models import Manufacture
 
 
 class UniqueProduct(models.Model):
-    STATUS = (
+    STATUS_SHIPPING = (
         ('Arrived', 'Arrived'),
         ('Shipping', 'Shipping'),
         ('Shipped', 'Shipped'),
@@ -24,7 +24,7 @@ class UniqueProduct(models.Model):
     retail_price = models.IntegerField()
     manufacture = models.ForeignKey(Manufacture, null=True, blank=True, on_delete=models.CASCADE)
     is_deleted = models.BooleanField(default=False)
-    status = models.CharField(max_length=150, choices=STATUS, default='Not Sent')
+    status = models.CharField(max_length=150, choices=STATUS_SHIPPING, default='Not Sent')
     status_payment = models.CharField(max_length=150, choices=STATUS_PAYMENT, default='Invoice Not Created')
     vessel = models.CharField(max_length=50, null=True, blank=True)
 
