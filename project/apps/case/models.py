@@ -16,7 +16,6 @@ class Case(models.Model):
     # Fields
     title = models.CharField(max_length=100)
     description = models.TextField()
-    total_price = models.IntegerField()
     deadline = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -25,7 +24,7 @@ class Case(models.Model):
     followers = models.ManyToManyField(User, related_name='following_cases')
     vessel = models.ForeignKey(Vessel, on_delete=models.CASCADE, null=True, blank=True)
     case_manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_cases', null=True, blank=True)
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, blank=True)
+
 
     # Choices for status fields
     CASE_STATUS_CHOICES = (

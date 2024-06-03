@@ -13,9 +13,6 @@ from django.db.models import Q, F
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def product_create(request):
-
-
-
     # Check if data for SimpleProduct is provided
     if 'is_unique' in request.data:
         if request.data['is_unique'] == 0:
@@ -41,7 +38,6 @@ def product_create(request):
                 Product.objects.get(id=product_id)
             except Product.DoesNotExist:
                 return Response({'error': 'Parent product does not exist'})
-            serializer.validated_data["product_id"] = product_id
             serializer.save()
             return Response({"message": "UniqueProduct created successfully."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
