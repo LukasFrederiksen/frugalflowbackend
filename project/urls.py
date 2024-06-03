@@ -17,7 +17,7 @@ urlpatterns = [
     path('api/vessels/', include('project.apps.vessel.urls')),
     path('api/manufactures/', include('project.apps.manufacture.urls')),
     path('api/products/', include('project.apps.product.urls')),
-    path('api/unique_products/', include('project.apps.unique_product.urls')),
+    #path('api/unique_products/', include('project.apps.unique_product.urls')),
 
 
 ]

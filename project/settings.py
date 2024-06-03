@@ -47,9 +47,10 @@ INSTALLED_APPS = [
     "project.apps.vessel",
     "project.apps.manufacture",
     "project.apps.product",
-    "project.apps.unique_product",
     "project.apps.users",
     "project.apps.kafka",
+    "project.apps.contacts",
+    "project.apps.invoices"
 ]
 
 MIDDLEWARE = [
@@ -140,7 +141,11 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+

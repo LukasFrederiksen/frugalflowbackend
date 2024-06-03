@@ -3,10 +3,52 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
-from project.apps.product.models import Product
-from project.apps.product.serializer import ProductSerializer
+from project.apps.product.models import Product, UniqueProduct
+from project.apps.product.serializer import ProductSerializer, SimpleProductSerializer, \
+    UniqueProductSerializer
 from rest_framework.response import Response
 from django.db.models import Q, F
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def product_create(request):
+
+
+
+    # Check if data for SimpleProduct is provided
+    if 'is_unique' in request.data:
+        if request.data['is_unique'] == 0:
+            serializer = SimpleProductSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "SimpleProduct created successfully."}, status=status.HTTP_201_CREATED)
+        else:
+            serializer = ProductSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Product created successfully."}, status=status.HTTP_201_CREATED)
+            serializer = SimpleProductSerializer(data=request.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Check if data for UniqueProduct is provided
+    elif 'serial_number' in request.data:
+        serializer = UniqueProductSerializer(data=request.data)
+        if serializer.is_valid():
+            product_id = request.data['product_id']
+            try:
+                Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                return Response({'error': 'Parent product does not exist'})
+            serializer.validated_data["product_id"] = product_id
+            serializer.save()
+            return Response({"message": "UniqueProduct created successfully."}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        return Response({"error": "Invalid data provided."}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET', 'POST'])

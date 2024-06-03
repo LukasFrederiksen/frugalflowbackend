@@ -10,6 +10,9 @@ from project.apps.case.models import Case
 from project.apps.case.serializer import CaseSerializer
 
 from project.apps.kafka.kafka_client import KafkaProducer
+from project.apps.product.serializer import ProductSerializer
+
+
 
 
 @api_view(['GET', 'POST'])
@@ -114,3 +117,20 @@ def case_count(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def add_product(request):
+    try:
+        is_unique = request.data['is_unique']
+        serializer = None
+        if is_unique == 0:
+            serializer = CaseSimpleProductSerializer(data=request.data)
+        elif is_unique == 1:
+            serializer = CaseUniqueProductSerializer(data=request)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'Product': serializer.data}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response("Error adding Product", status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
