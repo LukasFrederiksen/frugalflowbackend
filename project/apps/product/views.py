@@ -57,7 +57,7 @@ def products(request):
 
         found_products = Product.objects.all()
 
-        found_products = found_products.order_by(F('serial_number'))
+        found_products = found_products.order_by(F('sku'))
 
         if search:
             found_products = found_products.filter(Q(sku__icontains=search) |
@@ -88,6 +88,38 @@ def products(request):
             serializer.save()
             return Response({'Product': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def unique_products(request):
+    if request.method == 'GET':
+        search = request.GET.get('search')
+        isDeleted = request.GET.get('isDeleted')
+        show_all = request.GET.get('show_all', 'false').lower() == 'true'
+
+        found_products = UniqueProduct.objects.all()
+
+        found_products = found_products.order_by(F('serial_number'))
+
+        if search:
+            found_products = found_products.filter(Q(sku__icontains=search) |
+                                                   Q(serial_number__icontains=search) |
+                                                   Q(name__icontains=search))
+
+        if isDeleted == 'true':
+            found_products = found_products.filter(isDeleted=False)
+        elif isDeleted == 'false':
+            found_products = found_products.filter(isDeleted=True)
+
+        if show_all:
+            serializer = UniqueProductSerializer(found_products, many=True)
+            return Response(serializer.data)
+        else:
+            paginator = PageNumberPagination()
+            paginator.page_size = 20
+            paginated_products = paginator.paginate_queryset(found_products, request)
+            serializer = UniqueProductSerializer(paginated_products, many=True)
+            return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
