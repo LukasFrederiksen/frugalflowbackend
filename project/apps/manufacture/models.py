@@ -11,7 +11,7 @@ class Manufacture(models.Model):
 
     cvr = models.IntegerField(unique=True)
     name = models.CharField(max_length=100)
-    contactperson_id = models.ForeignKey(ContactPerson, on_delete=models.CASCADE, null=True, blank=True)
+    contactperson = models.ForeignKey(ContactPerson, on_delete=models.CASCADE, null=True, blank=True)
     phone = models.CharField(max_length=100, unique=True)
     email = models.EmailField(max_length=70, unique=True)
     website = models.CharField(max_length=255, blank=True, null=True)

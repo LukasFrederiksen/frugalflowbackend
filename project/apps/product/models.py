@@ -24,8 +24,9 @@ class Product(models.Model):
 
 
 class SimpleProduct(Product):
-    case = models.ManyToManyField(Case)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='simple_products', null=True, blank=True)
     qty = models.IntegerField()
+
 
     class Meta:
         db_table = 'simple_product'
@@ -36,7 +37,7 @@ class SimpleProduct(Product):
         return "Simple Product"
 
 
-class UniqueProduct(Product):
+class UniqueProduct(models.Model):
     STATUS_SHIPPING = (
         ('Arrived', 'Arrived'),
         ('Shipping', 'Shipping'),
@@ -50,10 +51,15 @@ class UniqueProduct(Product):
         ('Invoice Not Created', 'Invoice Not Created'),
 
     )
-    case = models.ManyToManyField(Case)
-    serial_number = models.CharField(max_length=50)
+
+    unique_product_id = models.AutoField(primary_key=True)
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='unique_products')
+
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='unique_products', null=True, blank=True)
+    serial_number = models.CharField(max_length=50, unique=True)
     custom_price = models.IntegerField(null=True, blank=True)
-    status_shipping = models.CharField(max_length=150, choices=STATUS_SHIPPING, default='frugal')
+    status_shipping = models.CharField(max_length=150, choices=STATUS_SHIPPING, default='Shipped')
     status_payment = models.CharField(max_length=150, choices=STATUS_PAYMENT, blank=True)
 
     class Meta:
