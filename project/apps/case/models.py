@@ -21,7 +21,6 @@ class Case(models.Model):
 
 
     # Relationship Fields
-    followers = models.ManyToManyField(User, related_name='following_cases')
     vessel = models.ForeignKey(Vessel, on_delete=models.CASCADE, null=True, blank=True)
     case_manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_cases', null=True, blank=True)
 
@@ -36,17 +35,17 @@ class Case(models.Model):
         ('on_hold', 'On Hold'),
         ('done', 'Done'),
     )
-    PAYMENT_STATUS_CHOICES = (
-        ('unpaid', 'Unpaid'),
-        ('partial', 'Partially Paid'),
-        ('paid', 'Paid'),
-        ('overdue', 'Overdue'),
-        ('overpaid', 'Overpaid'),
-        ('cancelled', 'Cancelled'),
-        ('refunded', 'Refunded'),
-        ('partially_refunded', 'Partially Refunded'),
-        ('courtesy', 'Courtesy')
-    )
+    # PAYMENT_STATUS_CHOICES = (
+    #     ('unpaid', 'Unpaid'),
+    #     ('partial', 'Partially Paid'),
+    #     ('paid', 'Paid'),
+    #     ('overdue', 'Overdue'),
+    #     ('overpaid', 'Overpaid'),
+    #     ('cancelled', 'Cancelled'),
+    #     ('refunded', 'Refunded'),
+    #     ('partially_refunded', 'Partially Refunded'),
+    #     ('courtesy', 'Courtesy')
+    # )
     # Status fields
     case_status = models.CharField(max_length=50, choices=CASE_STATUS_CHOICES, default='open')
 

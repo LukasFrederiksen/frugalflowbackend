@@ -4,22 +4,16 @@ from project.apps.case.models import Case
 from project.apps.customer.serializer import CustomerSerializer
 from project.apps.users.models import User
 from project.apps.users.serializer import UserSerializer
-
-
+from project.apps.vessel.serializer import VesselSerializer
 
 
 class CaseSerializer(serializers.ModelSerializer):
     # Nested relationship serializers
-    followers = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
-    vessel = serializers.StringRelatedField()
-    product_owner = serializers.StringRelatedField()
-    customer_data = CustomerSerializer(source='customer', read_only=True, many=False)
-
+    vessel = VesselSerializer()
+    case_manager = UserSerializer()
 
     def create(self, validated_data):
-        followers_data = validated_data.pop('followers', [])
         case = Case.objects.create(**validated_data)
-        case.followers.set(followers_data)  # Set the followers
         return case
 
     class Meta:

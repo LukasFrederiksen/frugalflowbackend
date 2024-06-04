@@ -10,6 +10,30 @@ from rest_framework.response import Response
 from django.db.models import Q, F
 
 
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([AllowAny])
+def unique_product(request, id):
+    try:
+        data = UniqueProduct.objects.get(pk=id)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = UniqueProductSerializer(data)
+        return Response({'product': serializer.data}, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        serializer = UniqueProductSerializer(data, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'product': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        data.is_deleted = 'True'
+        data.save()
+        return Response(status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def product_create(request):
@@ -99,17 +123,18 @@ def unique_products(request):
 
         found_products = UniqueProduct.objects.all()
 
-        found_products = found_products.order_by(F('serial_number'))
-
-        if search:
-            found_products = found_products.filter(Q(sku__icontains=search) |
-                                                   Q(serial_number__icontains=search) |
-                                                   Q(name__icontains=search))
-
         if isDeleted == 'true':
             found_products = found_products.filter(isDeleted=False)
         elif isDeleted == 'false':
             found_products = found_products.filter(isDeleted=True)
+
+        found_products = found_products.order_by(F('serial_number'))
+
+        if search:
+            found_products = found_products.filter(Q(serial_number__icontains=search) |
+                                                   Q(product__name__icontains=search) |
+                                                   (Q(case__isnull=False) & Q(case__vessel__icontains=search)))
+
 
         if show_all:
             serializer = UniqueProductSerializer(found_products, many=True)
