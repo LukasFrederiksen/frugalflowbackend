@@ -18,11 +18,11 @@ class UniqueProductSerializer(serializers.ModelSerializer):
 
     def get_or_create_nested_objects(self, validated_data):
         product_data = validated_data.pop('product')
-        product, _ = Product.objects.get_or_create(product_data)
+        product, _ = Product.objects.get_or_create(pk=product_data.id)
 
         case_data = validated_data.pop('case', None)
         if case_data:
-            case, _ = Case.objects.get_or_create(case_data)
+            case, _ = Case.objects.get_or_create(pk=case_data.id)
             validated_data['case_id'] = case.id
         else:
             validated_data['case_id'] = None

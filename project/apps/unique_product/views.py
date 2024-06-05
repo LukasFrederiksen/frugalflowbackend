@@ -8,6 +8,7 @@ from project.apps.unique_product.serializer import UniqueProductSerializer
 from django.db.models import Q, F
 from rest_framework.pagination import PageNumberPagination
 
+
 # Create your views here.
 @api_view(['POST', 'GET'])
 @permission_classes([AllowAny])
@@ -17,7 +18,7 @@ def unique_products(request):
         if serializer.is_valid():
             product_id = request.data['product_id']
             try:
-                Product.objects.get(id=product_id)
+                Product.objects.filter(id=product_id)
             except Product.DoesNotExist:
                 return Response({'error': 'Parent product does not exist'})
             serializer.save()
@@ -52,3 +53,27 @@ def unique_products(request):
             paginated_products = paginator.paginate_queryset(found_products, request)
             serializer = UniqueProductSerializer(paginated_products, many=True)
             return paginator.get_paginated_response(serializer.data)
+
+@api_view(['POST', 'GET', 'PUT'])
+@permission_classes([AllowAny])
+def unique_product(request, id):
+    try:
+        data = UniqueProduct.objects.get(pk=id)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = UniqueProductSerializer(data)
+        return Response({'product': serializer.data}, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        serializer = UniqueProductSerializer(data, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'product': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        data.is_deleted = 'True'
+        data.save()
+        return Response(status=status.HTTP_200_OK)
