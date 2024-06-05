@@ -3,6 +3,6 @@ from .models import ContactPerson
 
 
 class ContactPersonSerializer(serializers.ModelSerializer):
-   class Meta:
-       model = ContactPerson
-       fields = ['id','phone', 'email']
+    class Meta:
+        model = ContactPerson
+        fields = ['id', 'phone', 'email']

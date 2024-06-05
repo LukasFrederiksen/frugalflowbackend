@@ -4,7 +4,6 @@ from ..case.models import Case
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    # cases = serializers.PrimaryKeyRelatedField(many=True, queryset=Case.objects.all())
 
     class Meta:
         model = Customer
