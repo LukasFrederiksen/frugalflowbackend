@@ -107,3 +107,12 @@ def product_count(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def products_is_unique(request, is_unique):
+    try:
+        data = Product.objects.filter(is_unique=is_unique)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = ProductSerializer(data, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

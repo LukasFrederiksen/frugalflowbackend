@@ -21,7 +21,7 @@ def customers(request):
             return Response(serializer.data)
         else:
             serializer = CustomerSerializer(data, context={'request': request}, many=True)
-            return Response({'customers': serializer.data})
+            return Response(serializer.data)
 
     elif request.method == 'POST':
         serializer = CustomerSerializer(data=request.data)
@@ -42,7 +42,7 @@ def customer(request, id):
 
     if request.method == 'GET':
         serializer = CustomerSerializer(data)
-        return Response({'customer': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
         serializer = CustomerSerializer(data, data=request.data)
