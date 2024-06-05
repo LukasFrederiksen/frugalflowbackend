@@ -11,7 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 # Create your views here.
 @api_view(['POST', 'GET'])
 @permission_classes([AllowAny])
-def unique_product(request):
+def unique_products(request):
     if request.method == 'POST':
         serializer = UniqueProductSerializer(data=request.data)
         if serializer.is_valid():

@@ -10,7 +10,7 @@ from project.apps.case.models import Case
 from project.apps.case.serializer import CaseSerializer
 
 from project.apps.kafka.kafka_client import KafkaProducer
-from project.apps.product.serializer import ProductSerializer, UniqueProductSerializer
+from project.apps.unique_product.serializer import UniqueProductSerializer
 
 
 @api_view(['GET', 'POST'])

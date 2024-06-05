@@ -5,7 +5,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from project.apps.product.models import Product
 from project.apps.product.serializer import ProductSerializer, SimpleProductSerializer
-
 from rest_framework.response import Response
 from django.db.models import Q, F
 
