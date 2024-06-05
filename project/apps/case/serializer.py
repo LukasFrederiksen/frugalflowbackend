@@ -1,8 +1,5 @@
 from rest_framework import serializers
-
 from project.apps.case.models import Case
-from project.apps.customer.serializer import CustomerSerializer
-from project.apps.users.models import User
 from project.apps.users.serializer import UserSerializer
 from project.apps.vessel.serializer import VesselSerializer
 

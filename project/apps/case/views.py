@@ -10,9 +10,7 @@ from project.apps.case.models import Case
 from project.apps.case.serializer import CaseSerializer
 
 from project.apps.kafka.kafka_client import KafkaProducer
-from project.apps.product.serializer import ProductSerializer
-
-
+from project.apps.product.serializer import ProductSerializer, UniqueProductSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -20,7 +18,6 @@ def cases(request):
     if request.method == 'GET':
         # Henter parameter fra vores request
         search = request.GET.get('search')
-        sortprice = request.GET.get('sortprice')
         sortdeadline = request.GET.get('sortdeadline')
 
         # PageNumberPagination som håndterer pagineringen
@@ -28,17 +25,11 @@ def cases(request):
         paginator.page_size = 20
 
         # Vores forspøgelse, henter alle cases
-        found_cases = Case.objects.all().select_related('customer')
+        found_cases = Case.objects.all()
 
         # Anvend søgefilter, hvis 'søgning' parameteren er angivet
         if search:
             found_cases = found_cases.filter(Q(title__icontains=search) | Q(description__icontains=search))
-
-        # sorting price
-        if sortprice == 'asc':
-            found_cases = found_cases.order_by('total_price')
-        elif sortprice == 'desc':
-            found_cases = found_cases.order_by('-total_price')
 
         # sorting deadline
         if sortdeadline == 'asc':
@@ -86,8 +77,10 @@ def case(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
+        unique_products = case.unique_products.all()
+        ups = UniqueProductSerializer(unique_products, many=True)
         serializer = CaseSerializer(case)
-        return Response(serializer.data)
+        return Response({'case': serializer.data, 'unique_products': ups.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'PUT':
         serializer = CaseSerializer(case, data=request.data)
