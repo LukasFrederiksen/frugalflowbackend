@@ -13,7 +13,8 @@ class UniqueProductSerializer(serializers.ModelSerializer):
     case = CaseSerializer(allow_null=True, required=False)
     class Meta():
         model = UniqueProduct
-        fields = ['unique_product_id','product_id','case_id', 'serial_number', 'custom_price', 'status_shipping', 'status_payment',
+        fields = ['unique_product_id', 'product_id', 'case_id', 'serial_number', 'custom_price', 'status_shipping',
+                  'status_payment',
                   'product', 'case']
 
     def get_or_create_nested_objects(self, validated_data):

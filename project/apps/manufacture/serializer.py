@@ -5,7 +5,7 @@ from ..contacts.serializer import ContactPersonSerializer
 
 
 class ManufactureSerializer(serializers.ModelSerializer):
-    contact_person_id = serializers.PrimaryKeyRelatedField(queryset=ContactPerson.objects.all(), source='contact_person', allow_null=True)
+    contact_person_id = serializers.PrimaryKeyRelatedField(queryset=ContactPerson.objects.all(), source='contact_person', allow_null=True, required=False)
     contact_person = ContactPersonSerializer(allow_null=True, required=False)
 
     class Meta:
