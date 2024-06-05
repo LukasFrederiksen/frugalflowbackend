@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     "project.apps.users",
     "project.apps.kafka",
     "project.apps.contacts",
-    "project.apps.invoices"
+    "project.apps.invoices",
+    "project.apps.unique_product"
 ]
 
 MIDDLEWARE = [

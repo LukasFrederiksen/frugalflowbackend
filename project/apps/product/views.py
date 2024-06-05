@@ -3,36 +3,11 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
-from project.apps.product.models import Product, UniqueProduct
-from project.apps.product.serializer import ProductSerializer, SimpleProductSerializer, \
-    UniqueProductSerializer
+from project.apps.product.models import Product
+from project.apps.product.serializer import ProductSerializer, SimpleProductSerializer
+
 from rest_framework.response import Response
 from django.db.models import Q, F
-
-
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([AllowAny])
-def unique_product(request, id):
-    try:
-        data = UniqueProduct.objects.get(pk=id)
-    except Product.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = UniqueProductSerializer(data)
-        return Response({'product': serializer.data}, status=status.HTTP_200_OK)
-
-    elif request.method == 'PUT':
-        serializer = UniqueProductSerializer(data, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'product': serializer.data}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        data.is_deleted = 'True'
-        data.save()
-        return Response(status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -52,20 +27,6 @@ def product_create(request):
             serializer = SimpleProductSerializer(data=request.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # Check if data for UniqueProduct is provided
-    elif 'serial_number' in request.data:
-        serializer = UniqueProductSerializer(data=request.data)
-        if serializer.is_valid():
-            product_id = request.data['product_id']
-            try:
-                Product.objects.get(id=product_id)
-            except Product.DoesNotExist:
-                return Response({'error': 'Parent product does not exist'})
-            serializer.save()
-            return Response({"message": "UniqueProduct created successfully."}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     else:
         return Response({"error": "Invalid data provided."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -112,39 +73,6 @@ def products(request):
             serializer.save()
             return Response({'Product': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def unique_products(request):
-    if request.method == 'GET':
-        search = request.GET.get('search')
-        isDeleted = request.GET.get('isDeleted')
-        show_all = request.GET.get('show_all', 'false').lower() == 'true'
-
-        found_products = UniqueProduct.objects.all()
-
-        if isDeleted == 'true':
-            found_products = found_products.filter(isDeleted=False)
-        elif isDeleted == 'false':
-            found_products = found_products.filter(isDeleted=True)
-
-        found_products = found_products.order_by(F('serial_number'))
-
-        if search:
-            found_products = found_products.filter(Q(serial_number__icontains=search) |
-                                                   Q(product__name__icontains=search) |
-                                                   (Q(case__isnull=False) & Q(case__vessel__icontains=search)))
-
-
-        if show_all:
-            serializer = UniqueProductSerializer(found_products, many=True)
-            return Response(serializer.data)
-        else:
-            paginator = PageNumberPagination()
-            paginator.page_size = 20
-            paginated_products = paginator.paginate_queryset(found_products, request)
-            serializer = UniqueProductSerializer(paginated_products, many=True)
-            return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
