@@ -77,3 +77,10 @@ def unique_product(request, id):
         data.is_deleted = 'True'
         data.save()
         return Response(status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def getEnums(request):
+    status_shipping= UniqueProduct.STATUS_SHIPPING
+    status_payment = UniqueProduct.STATUS_PAYMENT
+
+    return Response({"shipping": status_shipping, "payment": status_payment})
