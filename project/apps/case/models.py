@@ -22,7 +22,7 @@ class Case(models.Model):
 
     # Relationship Fields
     vessel = models.ForeignKey(Vessel, on_delete=models.CASCADE, null=True, blank=True)
-    case_manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_cases', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_cases', null=True, blank=True)
 
 
     # Choices for status fields

@@ -8,34 +8,24 @@ from ..manufacture.models import Manufacture
 
 class ProductSerializer(serializers.ModelSerializer):
     manufacture = ManufactureSerializer(required=False)
-    manufacture_id = serializers.IntegerField(required=False)
-    qty = serializers.IntegerField(required=False, write_only=True, allow_null=True)
-    case_id = serializers.PrimaryKeyRelatedField(queryset=Case.objects.all(), write_only=True, allow_null=True,
-                                                 required=False)
+    manufacture_id = serializers.PrimaryKeyRelatedField(queryset=Manufacture.objects.all(), source='manufacture')
 
     class Meta:
         model = Product
         fields = ['id', 'name', 'description', 'cost_price', 'retail_price', 'is_deleted', 'manufacture', 'sku',
-                  'is_unique', 'qty', 'case_id', 'manufacture_id']
+                  'is_unique', 'manufacture_id']
 
-    def create(self, validated_data):
-        qty = validated_data.pop('qty', None)
-        case_id = validated_data.pop('case_id', None)
-        manufacture_id = validated_data.pop('manufacture_id', None)
+    def get_or_create_nested_objects(self, validated_data):
+        manufacture = validated_data.pop('manufacture')
+        manufacture = Manufacture.objects.get(pk=manufacture.id)
 
-        if manufacture_id:
-            manufacture = Manufacture.objects.get(pk=manufacture_id)
-            validated_data['manufacture'] = manufacture
-
-        if not validated_data['is_unique']:
-            SimpleProduct.objects.create(
-                product_ptr=validated_data['product_ptr'],
-                case_id=validated_data['case_id'],
-                qty=validated_data['qty']
-            )
-
+        validated_data['manufacture_id'] = manufacture.id
         return validated_data
 
+    def create(self, validated_data):
+        validated_data = self.get_or_create_nested_objects(validated_data)
+        product = Product.objects.create(**validated_data)
+        return product
 
 class SimpleProductSerializer(ProductSerializer):
     case = CaseSerializer(allow_null=True, required=False)

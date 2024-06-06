@@ -3,10 +3,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
-from project.apps.product.models import Product
+from project.apps.product.models import Product, SimpleProduct
 from project.apps.product.serializer import ProductSerializer, SimpleProductSerializer
 from rest_framework.response import Response
 from django.db.models import Q, F
+
+from project.apps.unique_product.serializer import UniqueProductSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -31,14 +33,37 @@ def products(request):
         elif isDeleted == 'false':
             found_products = found_products.filter(isDeleted=True)
 
+        found_products_unique = found_products.filter(is_unique=1)
+        found_products_simple = found_products.filter(is_unique=0)
+
+        qty_dict = {}
+
+        for unique_product in found_products_unique:
+            qty = unique_product.unique_products.all().count()
+            qty_dict[unique_product.id] = qty
+
+        for simple_product in found_products_simple:
+            qty = 0
+            products = SimpleProduct.objects.filter(product_ptr_id=simple_product.id)
+            for product in products:
+                prod_qty = product.qty
+                qty += prod_qty
+            qty_dict[simple_product.id] = qty
+
+
+
         if show_all:
             serializer = ProductSerializer(found_products, many=True)
+            for product in serializer.data:
+                product['qty'] = qty_dict[product.id]
             return Response(serializer.data)
         else:
             paginator = PageNumberPagination()
             paginator.page_size = 20
             paginated_products = paginator.paginate_queryset(found_products, request)
             serializer = ProductSerializer(paginated_products, many=True)
+            for product in serializer.data:
+                product['qty'] = qty_dict[product['id']]
             return paginator.get_paginated_response(serializer.data)
 
     elif request.method == 'POST':
@@ -52,8 +77,11 @@ def products(request):
             else:
                 serializer = ProductSerializer(data=request.data)
                 if serializer.is_valid():
-                    serializer.save()
-                    return Response({"message": "Product created successfully."}, status=status.HTTP_201_CREATED)
+                    try:
+                        serializer.save()
+                        return Response({"message": "Product created successfully."}, status=status.HTTP_201_CREATED)
+                    except Exception as e:
+                        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -69,8 +97,22 @@ def product(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
+        if data.is_unique:
+            all_unique = data.unique_products.all()
+            qty = all_unique.count()
+            unique_serial = UniqueProductSerializer(all_unique, many=True)
+        else:
+            qty = 0
+            products = SimpleProduct.objects.filter(product_ptr_id=data.id)
+            for product in products:
+                prod_qty = product.qty
+                qty += prod_qty
         serializer = ProductSerializer(data)
-        return Response({'product': serializer.data}, status=status.HTTP_200_OK)
+        product = serializer.data
+        product['qty'] = qty
+        if product['is_unique']:
+            product['unique_products'] = unique_serial.data
+        return Response({'product': product}, status=status.HTTP_200_OK)
 
     elif request.method == 'PUT':
         serializer = ProductSerializer(data, data=request.data)

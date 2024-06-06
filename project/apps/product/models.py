@@ -10,7 +10,7 @@ class Product(models.Model):
     cost_price = models.IntegerField()
     retail_price = models.IntegerField()
     is_deleted = models.BooleanField(default=False)
-    manufacture = models.ForeignKey(Manufacture, on_delete=models.CASCADE, null=True, blank=True)
+    manufacture = models.ForeignKey(Manufacture, on_delete=models.CASCADE, related_name="manufacture")
     sku = models.CharField(max_length=50, null=True, blank=True)
     is_unique = models.BooleanField(default=0)
     class Meta:

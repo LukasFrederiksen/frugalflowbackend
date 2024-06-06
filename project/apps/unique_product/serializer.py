@@ -14,8 +14,7 @@ class UniqueProductSerializer(serializers.ModelSerializer):
     class Meta():
         model = UniqueProduct
         fields = ['unique_product_id', 'product_id', 'case_id', 'serial_number', 'custom_price', 'status_shipping',
-                  'status_payment',
-                  'product', 'case']
+                  'status_payment', 'product', 'case']
 
     def get_or_create_nested_objects(self, validated_data):
         product_data = validated_data.pop('product')

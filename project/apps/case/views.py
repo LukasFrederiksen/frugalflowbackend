@@ -16,55 +16,35 @@ from project.apps.unique_product.serializer import UniqueProductSerializer
 @api_view(['GET', 'POST'])
 def cases(request):
     if request.method == 'GET':
-        # Henter parameter fra vores request
         search = request.GET.get('search')
         sortdeadline = request.GET.get('sortdeadline')
 
-        # PageNumberPagination som håndterer pagineringen
         paginator = PageNumberPagination()
         paginator.page_size = 20
 
-        # Vores forspøgelse, henter alle cases
         found_cases = Case.objects.all()
-
-        # Anvend søgefilter, hvis 'søgning' parameteren er angivet
         if search:
             found_cases = found_cases.filter(Q(title__icontains=search) | Q(description__icontains=search))
 
-        # sorting deadline
         if sortdeadline == 'asc':
             found_cases = found_cases.order_by('deadline')
         elif sortdeadline == 'desc':
             found_cases = found_cases.order_by('-deadline')
 
-        # Paginer forespørgslen ved hjælp af paginator
         paginated_cases = paginator.paginate_queryset(found_cases, request)
 
-        # Serializer paginerede forespørgslen
         serializer = CaseSerializer(paginated_cases, many=True)
 
-        # Return pagineret response
         return paginator.get_paginated_response(serializer.data)
 
     elif request.method == 'POST':
         serializer = CaseSerializer(data=request.data)
         if serializer.is_valid():
-            producer = KafkaProducer()
-
             try:
                 serializer.save()
-
-                case_data = serializer.data
-                case_data['priority'] = 10
-
-                data = json.dumps(case_data)
-                producer.send('case_created', data)
                 return Response({'case': serializer.data}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-            finally:
-                producer.close()
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -110,20 +90,3 @@ def case_count(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['POST'])
-def add_product(request):
-    try:
-        is_unique = request.data['is_unique']
-        serializer = None
-        if is_unique == 0:
-            serializer = CaseSimpleProductSerializer(data=request.data)
-        elif is_unique == 1:
-            serializer = CaseUniqueProductSerializer(data=request)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'Product': serializer.data}, status=status.HTTP_201_CREATED)
-    except Exception as e:
-        return Response("Error adding Product", status=status.HTTP_400_BAD_REQUEST)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -10,25 +10,25 @@ class CaseSerializer(serializers.ModelSerializer):
     # Nested relationship serializers
     vessel = VesselSerializer(required=False)
     vessel_id = serializers.PrimaryKeyRelatedField(queryset=Vessel.objects.all(), source='vessel')
-    case_manager = UserSerializer(required=False)
-    case_manager_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user')
+    user = UserSerializer(required=False)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user')
 
     class Meta:
         model = Case
-        fields = ['vessel', 'case_manager', "title", "description", "deadline", "vessel_id", "case_manager_id"]
+        fields = ['id', 'vessel', 'user', "title", "description", "deadline", "vessel_id", "user_id"]
 
     def get_or_create_nested_objects(self, validated_data):
         vessel_data = validated_data.pop('vessel')
         vessel, _ = Vessel.objects.get_or_create(pk=vessel_data.id)
 
-        validated_data['product_id'] = vessel.id
+        validated_data['vessel_id'] = vessel.id
 
-        case_manager = validated_data.pop('user', None)
-        if case_manager:
-            user, _ = User.objects.get_or_create(pk=case_manager.id)
-            validated_data['case_manager_id'] = case_manager.id
+        user = validated_data.pop('user', None)
+        if user:
+            user, _ = User.objects.get_or_create(pk=user.id)
+            validated_data['user_id'] = user.id
         else:
-            validated_data['case_manager_id'] = None
+            validated_data['user_id'] = None
 
         return validated_data
 
