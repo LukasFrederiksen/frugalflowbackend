@@ -79,8 +79,14 @@ def unique_product(request, id):
         return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def getEnums(request):
-    status_shipping= UniqueProduct.STATUS_SHIPPING
+def status_shipping_enums(request):
+    status_shipping = UniqueProduct.STATUS_SHIPPING
+
+    return Response(status_shipping)\
+
+
+@api_view(['GET'])
+def status_payment_enums(request):
     status_payment = UniqueProduct.STATUS_PAYMENT
 
-    return Response({"shipping": status_shipping, "payment": status_payment})
+    return Response(status_payment)

@@ -5,12 +5,12 @@ from ..customer.serializer import CustomerSerializer
 
 
 class VesselSerializer(serializers.ModelSerializer):
-    customer_id = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), source='customer', allow_null=True)
-    customer = CustomerSerializer(allow_null=True, required=False)
+    customer_id = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all(), source='customer')
+    customer = CustomerSerializer(required=False)
 
     class Meta:
         model = Vessel
-        fields = ['id', 'name', 'type', 'isDeleted', 'customer', 'customer_id']
+        fields = ['id', 'name', 'type', 'imo', 'customer', 'customer_id']
 
     def get_or_create_nested_objects(self, validated_data):
         customer_data = validated_data.pop('customer')
