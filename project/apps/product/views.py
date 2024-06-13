@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from project.apps.product.models import Product, SimpleProduct
 from project.apps.product.serializer import ProductSerializer, SimpleProductSerializer
 from rest_framework.response import Response
@@ -16,7 +16,7 @@ from project.apps.unique_product.serializer import UniqueProductSerializer
 def products(request):
     if request.method == 'GET':
         search = request.GET.get('search')
-        isDeleted = request.GET.get('isDeleted')
+        is_deleted = request.GET.get('isDeleted')
         show_all = request.GET.get('show_all', 'false').lower() == 'true'
 
         found_products = Product.objects.all()
@@ -28,9 +28,9 @@ def products(request):
                                                    Q(serial_number__icontains=search) |
                                                    Q(name__icontains=search))
 
-        if isDeleted == 'true':
+        if is_deleted == 'true':
             found_products = found_products.filter(isDeleted=False)
-        elif isDeleted == 'false':
+        elif is_deleted == 'false':
             found_products = found_products.filter(isDeleted=True)
 
         found_products_unique = found_products.filter(is_unique=1)
@@ -151,6 +151,7 @@ def product_count(request):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def products_is_unique(request, is_unique):
     try:
         data = Product.objects.filter(is_unique=is_unique)

@@ -15,7 +15,7 @@ class CaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Case
-        fields = ['id', 'vessel', 'user', "title", "description", "deadline", "vessel_id", "user_id"]
+        fields = ['id', 'created_at', 'vessel', 'user', "title", "description", "deadline", "vessel_id", "user_id", "case_status"]
 
     def get_or_create_nested_objects(self, validated_data):
         vessel_data = validated_data.pop('vessel')
